@@ -1,0 +1,62 @@
+
+// 1
+
+MATCH (fa1:Flight_Attendant)-->(f: Flight) <--(fa2: Flight_Attendant)
+WHERE fa1.flightAttendantID <> fa2.flightAttendantID
+
+CREATE (fa1)-[:Colleagues]->(fa2);
+
+// Mostrar resultado
+
+MATCH p=()-[r:Colleagues]->() RETURN p;
+
+// 2
+
+MATCH (l1:Language)<--(fa1:Flight_Attendant)-->(f1)-->(a:Airport)<--(f2)<--(fa2:Flight_Attendant)-->(l2:Language)
+WHERE l1.languageID = l2.languageID
+    AND NOT (f1)-[:Colleagues]-(f2)
+
+CREATE (fa1)-[:Acquaintance]->(fa2);
+
+// Mostrar resultado
+
+MATCH p=()-[r:Acquaintance]->() RETURN p ;
+
+//3
+
+
+CREATE ()-[af:Affair]->() RETURN af;
+
+MATCH (l:Language)<-[:Speaks]-(p:Pilot)-[:Drive]->(f:Flight)<-[:Attend_in]-(fa:Flight_Attendant)-[:Speaks]->(l2:Language)
+WHERE l.languageID = l2.languageID AND abs(p.years_working - fa.years_working) < 10 AND NOT (p)-[:Affair]-(fa)
+MERGE (p)-[:Affair]->(fa)
+MERGE (fa)-[:Affair]->(p)
+RETURN p, fa;
+
+MATCH (n)-[:Affair]->() WHERE size(labels(n)) = 0 DETACH DELETE n;
+
+// mostrar el resultat
+
+MATCH p=()-[r:Affair]->() RETURN p;
+
+// 4
+
+
+MATCH (l:Language)<-[:Speaks]-(p:Pilot)<-[aff:Affair]->(fa:Flight_Attendant)-[:Speaks]->(l2:Language)
+RETURN DISTINCT l.name, COUNT(DISTINCT aff)
+ORDER BY COUNT(distinct aff) DESC;
+
+// 5
+MATCH (fa:Flight_Attendant )<-[:Affair]-(p:Pilot)-[:Affair]->(f:Flight_Attendant)
+WHERE (fa)<>(f) AND (fa)-[:Colleagues]->(f)
+RETURN p;
+
+
+// 6
+
+MATCH (fa:Flight_Attendant )<-[:Affair]-(p:Pilot)-[:Affair]->(f:Flight_Attendant)
+MATCH (p)-->(fa:Flight_Attendant) 
+WHERE (fa)<>(f) 
+RETURN p,fa;
+
+

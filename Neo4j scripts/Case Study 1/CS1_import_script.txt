@@ -1,0 +1,36 @@
+
+LOAD CSV WITH HEADERS FROM "https://docs.google.com/spreadsheets/d/e/2PACX-1vQAIfHLr0mk5kkwKPDtNZwRKB7p1kdHvZjm42nKy6FvIi-seIcUhaV9kckcHfIu5ULUOPPwJiUi1Q2k/pub?gid=1558583421&single=true&output=csv" AS csv WITH csv
+
+CREATE (p:Plane {planeID: ToInteger(csv.planeID), retirement_year: ToInteger(csv.retirement_year), Plane_type_name:csv.Plane_type_name, Airline_name: csv.Airline_name, Times_maintained: ToInteger(csv.Times_maintained), Different_pieces_changed: ToInteger(csv.Diferent_pieces_changed), Cost_changing_pieces: ToFloat(csv.Cost_Changing_pieces)} );
+
+
+LOAD CSV WITH HEADERS FROM "https://docs.google.com/spreadsheets/d/e/2PACX-1vQAab_KhOx_RnkxpsD1QQo-TkOSj2w4Dd9i0BoiRGMAsAGvlFMfnsVB7i-yY5xAHhNrRqJkY5Y5Vb6O/pub?gid=1228360423&single=true&output=csv" AS csv WITH csv
+
+CREATE (c:Country{countryID: ToInteger(csv.Country_ID), Country_name: csv.Country_name});
+
+
+LOAD CSV WITH HEADERS FROM "https://docs.google.com/spreadsheets/d/e/2PACX-1vRTwN2rv17vMoRRGIf_x7kl8HPicA4_BQ_eBh3LCS8UPBXifAmTGhXGFwH9fWPGz7RPm4nl-WtEaz5_/pub?gid=2008439896&single=true&output=csv" AS csv
+WITH csv
+
+CREATE (p: City {cityID : ToInteger(csv.cityID), City_name: csv.City_name, timezone: ToInteger(csv.timezone)})
+
+WITH csv
+MATCH (c: Country {countryID: ToInteger(csv.Country_ID)}), (p:City {cityID: ToInteger(csv.cityID)})
+CREATE (p)-[:Is_in]->(c)
+
+WITH csv
+CREATE (a: Airport {airportID: ToInteger(csv.airportID), name: csv.Airport_name, altitude: ToInteger(csv.altitude)})
+
+WITH csv
+MATCH (a: Airport {airportID: ToInteger(csv.airportID)}), (p: City {cityID: ToInteger(csv.cityID)})
+CREATE (a)-[:Airport_cityLocation]->(p);
+
+
+LOAD CSV WITH HEADERS FROM "https://docs.google.com/spreadsheets/d/e/2PACX-1vQjZxnWVlgLswGOgwNWCmp4o7geHLJkoEyCak-YstYzoiN4JJxmT1ZCpY3WrIzNedDBf_SK9JtCh1-a/pub?output=csv" AS csv WITH csv
+
+MATCH (p:Plane {planeID: ToInteger(csv.planeID)}),
+      (a_dep:Airport {airportID: ToInteger(csv.departure_airportID)}),
+      (a_dest:Airport {airportID: ToInteger(csv.destination_airportID)})
+
+CREATE (p) -[:Departure]-> (a_dep)
+CREATE (p) -[:Destination]-> (a_dest);

@@ -1,0 +1,28 @@
+// 1
+MATCH (p:Plane)
+WHERE NOT (p)-->(:Airport) AND p.Different_pieces_changed < 8
+RETURN p;
+
+// 2
+MATCH ((c2:City)<--(ap2:Airport)-[:Destination]-(p:Plane)-[:Departure]->(ap:Airport)-->(c:City))
+WHERE ap<>ap2 AND c<>c2
+RETURN DISTINCT p, COUNT(DISTINCT ap) AS numAirports
+ORDER BY numAirports DESC;
+
+// 3
+MATCH (p:Plane) --> (a:Airport) -[:Airport_cityLocation]-> (:City) -[:Is_in]->(c:Country)
+WHERE a.altitude > 100
+RETURN p AS plane, COUNT( DISTINCT c) AS numCountries
+ORDER BY COUNT(DISTINCT c) DESC;
+// 4
+
+MATCH v1 = shortestPath((p1:Country)-[:Departure|Destination|Is_in|Airport_cityLocation *..]-(p2:Country))
+WHERE p1.Country_name = 'Greece' AND p2.Country_name = 'Singapore'
+RETURN v1;
+
+// 5
+
+MATCH p=(start:Country)-[:Departure|Destination|Is_in|Airport_cityLocation *1..7]-(end:Country)
+WHERE start.Country_name = 'Laos' AND end.Country_name = 'South Korea'
+RETURN p;
+

@@ -1,0 +1,108 @@
+
+
+LOAD CSV WITH HEADERS FROM "
+https://docs.google.com/spreadsheets/d/e/2PACX-1vRccRUtnEfNvchYxiCjlhMWI4AMCYqVtTaXvNiM2FylY7gxs0QdbomtEKdKktaKLEO8zIy9yi0_W8iu/pub?gid=1162063494&single=true&output=csv
+" AS csv WITH csv
+
+CREATE (a:Pilot{
+		pilotID: ToInteger(csv.pilotid),
+		name: csv.name,
+		surname:csv.surname,
+		email:csv.email,
+		sex:csv.sex,
+		salary:csv.salary,
+		years_working: ToInteger(csv.years_working)});
+
+
+LOAD CSV WITH HEADERS FROM "
+https://docs.google.com/spreadsheets/d/e/2PACX-1vQWRLlJiv22620NuiF-9IJV5jD79KDiJRK6nE2EtT4hkbLq0mSWzclcNyplGZQcfC0kcPbI_fI4EyZv/pub?gid=1430986638&single=true&output=csv
+" AS csv WITH csv
+
+CREATE (a:Language{
+		languageID: ToInteger(csv.languageID),
+		name:csv.name});
+
+
+
+LOAD CSV WITH HEADERS FROM "
+https://docs.google.com/spreadsheets/d/e/2PACX-1vStSDa7TqmRDu-zQFkDwIQrDvhh_vEeMs2NgqGYFElcXDNsXIKQOdDdn1dmXlzUDnOLITIhPajaGkWg/pub?gid=1406668164&single=true&output=csv
+" AS csv WITH csv
+
+
+CREATE (a:Flight_Attendant{
+		flightAttendantID: ToInteger(csv.flightAttendantID),
+		name: csv.name,
+		surname:csv.surname,
+		email:csv.email,
+		sex:csv.sex,
+		salary:csv.salary,
+		years_working: ToInteger(csv.years_working)});
+
+
+LOAD CSV WITH HEADERS FROM "
+https://docs.google.com/spreadsheets/d/e/2PACX-1vTtPY8iNRJvXmvI77055jgEFtECn-sxr_lIA7K1OrTERUrYMjQKjVAW_AaK7uuSp2g_ORINU8TWNjzt/pub?gid=1356330698&single=true&output=csv
+" AS csv WITH csv
+
+
+CREATE (a:Flight{
+		flightID:ToInteger(csv.flightID),
+		date:date(csv.date)});
+
+
+LOAD CSV WITH HEADERS FROM "
+https://docs.google.com/spreadsheets/d/e/2PACX-1vRPwIVxhkOK1b41wUXDeR5gNtSaY_Shb5SdL6kCtU4nr1tkkPDCvjVSTqKYzmumdijrE9ues8Y_8nT8/pub?gid=874716835&single=true&output=csv
+" AS csv WITH csv
+
+
+CREATE (a:Airport{
+		AirportID:ToInteger(csv.destination_airportID)});
+
+
+
+
+
+LOAD CSV WITH HEADERS FROM "
+https://docs.google.com/spreadsheets/d/e/2PACX-1vSSRBir7mf7OrAlkqnD_EondAFtoD6fp-shBIqWwveEAJTv7-PyX1MFG7guyGrxBJu3I9149h6djYF1/pub?gid=1114136684&single=true&output=csv
+" AS csv WITH csv
+
+MATCH (p:Pilot {pilotID: ToInteger(csv.pilotid)}),
+      (l:Language {languageID: ToInteger(csv.languageID)})
+
+CREATE (p) -[:Speaks]-> (l);
+
+
+LOAD CSV WITH HEADERS FROM "
+https://docs.google.com/spreadsheets/d/e/2PACX-1vRpVtM73-5xAbRV5Tt6IxHVnjVqWrMfL0RJYJQTIpsHn_EYSBlVqktiUEJNCBLpUeAzfSHTJdm62REZ/pub?gid=442108154&single=true&output=csv
+" AS csv WITH csv
+
+MATCH (fa:Flight_Attendant {flightAttendantID: ToInteger(csv.flightAttendantID)}),
+      (l:Language {languageID: ToInteger(csv.languageID)})
+
+CREATE (fa) -[:Speaks]-> (l);
+
+
+
+LOAD CSV WITH HEADERS FROM "
+https://docs.google.com/spreadsheets/d/e/2PACX-1vQvb_qWyhe671wje_ONVSCPov0zWWQnb-9ER0wVBorE5zHAsDLefTrYOBQxkDm4obf83m9dAOXijzCE/pub?gid=665192085&single=true&output=csv
+" AS csv WITH csv
+
+MATCH (fa:Flight_Attendant {flightAttendantID: ToInteger(csv.flightAttendantID)}),
+      (p:Pilot {pilotID: ToInteger(csv.pilotID)}),
+      (f:Flight {flightID: ToInteger(csv.flightID)})
+
+CREATE (fa) -[:Attend_in]-> (f)
+CREATE (p) -[:Drive]-> (f);
+
+
+LOAD CSV WITH HEADERS FROM "
+https://docs.google.com/spreadsheets/d/e/2PACX-1vTtPY8iNRJvXmvI77055jgEFtECn-sxr_lIA7K1OrTERUrYMjQKjVAW_AaK7uuSp2g_ORINU8TWNjzt/pub?gid=1356330698&single=true&output=csv
+" AS csv WITH csv
+
+MATCH (f2:Flight {flightID: ToInteger(csv.flightID)}),
+	  (Dest:Airport {AirportID: ToInteger(csv.destination_airportID)}),
+	  (Dep :Airport  {AirportID: ToInteger(csv.departure_airportID)})
+	  
+	  
+CREATE (f2)-[:Destination]-> (Dest)
+CREATE (f2)-[:Departure]-> (Dep)
+
